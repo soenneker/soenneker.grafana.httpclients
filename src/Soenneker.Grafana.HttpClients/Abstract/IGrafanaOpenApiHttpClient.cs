@@ -6,7 +6,7 @@ using System.Threading;
 namespace Soenneker.Grafana.HttpClients.Abstract;
 
 /// <summary>
-/// A .NET thread-safe singleton HttpClient for 
+/// Provides an authenticated <see cref="HttpClient"/> for the generated Grafana OpenAPI client.
 /// </summary>
 public interface IGrafanaOpenApiHttpClient: IDisposable, IAsyncDisposable
 {

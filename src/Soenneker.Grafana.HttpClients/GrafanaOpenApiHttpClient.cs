@@ -11,13 +11,12 @@ using Soenneker.Utils.HttpClientCache.Abstract;
 
 namespace Soenneker.Grafana.HttpClients;
 
-///<inheritdoc cref="IGrafanaOpenApiHttpClient"/>
 public sealed class GrafanaOpenApiHttpClient : IGrafanaOpenApiHttpClient
 {
     private readonly IHttpClientCache _httpClientCache;
     private readonly IConfiguration _config;
 
-    private const string _prodBaseUrl = "/api";
+    private readonly string _cacheKey = $"{nameof(GrafanaOpenApiHttpClient)}:{Guid.NewGuid():N}";
 
     public GrafanaOpenApiHttpClient(IHttpClientCache httpClientCache, IConfiguration config)
     {
@@ -27,16 +26,17 @@ public sealed class GrafanaOpenApiHttpClient : IGrafanaOpenApiHttpClient
 
     public ValueTask<HttpClient> Get(CancellationToken cancellationToken = default)
     {
-        return _httpClientCache.Get(nameof(GrafanaOpenApiHttpClient), (config: _config, baseUrl: _config["Grafana:ClientBaseUrl"] ?? _prodBaseUrl), static state =>
+        return _httpClientCache.Get(_cacheKey, _config, static config =>
         {
-            var apiKey = state.config.GetValueStrict<string>("Grafana:ApiKey");
-            string authHeaderName = state.config["Grafana:AuthHeaderName"] ?? "Bearer {token}";
-            string authHeaderValueTemplate = state.config["Grafana:AuthHeaderValueTemplate"] ?? "{token}";
+            var apiKey = config.GetValueStrict<string>("Grafana:ApiKey");
+            var baseUrl = config.GetValueStrict<string>("Grafana:ClientBaseUrl");
+            string authHeaderName = config["Grafana:AuthHeaderName"] ?? "Authorization";
+            string authHeaderValueTemplate = config["Grafana:AuthHeaderValueTemplate"] ?? "Bearer {token}";
             string authHeaderValue = authHeaderValueTemplate.Replace("{token}", apiKey, StringComparison.Ordinal);
 
             return new HttpClientOptions
             {
-                BaseAddress = new Uri(state.baseUrl),
+                BaseAddress = new Uri(baseUrl),
                 DefaultRequestHeaders = new Dictionary<string, string>
                 {
                     {authHeaderName, authHeaderValue},
@@ -50,7 +50,7 @@ public sealed class GrafanaOpenApiHttpClient : IGrafanaOpenApiHttpClient
     /// </summary>
     public void Dispose()
     {
-        _httpClientCache.RemoveSync(nameof(GrafanaOpenApiHttpClient));
+        _httpClientCache.RemoveSync(_cacheKey);
     }
 
     /// <summary>
@@ -59,6 +59,6 @@ public sealed class GrafanaOpenApiHttpClient : IGrafanaOpenApiHttpClient
     /// <returns>A task that represents the asynchronous operation.</returns>
     public ValueTask DisposeAsync()
     {
-        return _httpClientCache.Remove(nameof(GrafanaOpenApiHttpClient));
+        return _httpClientCache.Remove(_cacheKey);
     }
 }

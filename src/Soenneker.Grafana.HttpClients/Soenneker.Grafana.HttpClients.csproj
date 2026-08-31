@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <Description>A thread-safe singleton HttpClient for Grafana's OpenAPI integration.</Description>
+        <Description>Provides a cached authenticated HttpClient for the generated Grafana OpenAPI client</Description>
         <Version Condition="'$(BUILD_VERSION)' == ''">4.0.0</Version>
         <Version Condition="'$(BUILD_VERSION)' != ''">$(BUILD_VERSION)</Version>
         <AssemblyName>Soenneker.Grafana.HttpClients</AssemblyName>

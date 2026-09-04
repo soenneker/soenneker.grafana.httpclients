@@ -11,6 +11,7 @@ using Soenneker.Utils.HttpClientCache.Abstract;
 
 namespace Soenneker.Grafana.HttpClients;
 
+/// <inheritdoc cref="IGrafanaOpenApiHttpClient" />
 public sealed class GrafanaOpenApiHttpClient : IGrafanaOpenApiHttpClient
 {
     private readonly IHttpClientCache _httpClientCache;

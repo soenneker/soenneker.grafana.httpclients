@@ -29,8 +29,8 @@ public sealed class GrafanaOpenApiHttpClient : IGrafanaOpenApiHttpClient
     {
         return _httpClientCache.Get(_cacheKey, _config, static config =>
         {
-            var apiKey = config.GetValueStrict<string>("Grafana:ApiKey");
-            var baseUrl = config.GetValueStrict<string>("Grafana:ClientBaseUrl");
+            var apiKey = config.GetStringStrict("Grafana:ApiKey");
+            var baseUrl = config.GetStringStrict("Grafana:ClientBaseUrl");
             string authHeaderName = config["Grafana:AuthHeaderName"] ?? "Authorization";
             string authHeaderValueTemplate = config["Grafana:AuthHeaderValueTemplate"] ?? "Bearer {token}";
             string authHeaderValue = authHeaderValueTemplate.Replace("{token}", apiKey, StringComparison.Ordinal);
